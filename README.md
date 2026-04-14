@@ -1,39 +1,16 @@
-# Тестовое задание — AI Tools Specialist
+# AI Tools Specialist - Dashboard
 
-Построй мини-дашборд заказов. Используй Claude Code CLI (или другой AI-инструмент).
+Мини-дашборд для визуализации заказов из RetailCRM.
 
-## Что нужно сделать
+### Что сделано:
 
-### Шаг 1: Создай аккаунты (всё бесплатно)
+*   Загружено 50 тестовых заказов в RetailCRM через Python API.
+*   Написан скрипт синхронизации данных из RetailCRM в Supabase.
+*   Создан веб-дашборд на Next.js 16 (App Router + Tailwind CSS).
+*   Настроены уведомления в Telegram для заказов > 50,000 ₸.
 
-- [RetailCRM](https://www.retailcrm.ru/) — демо-аккаунт
-- [Supabase](https://supabase.com/) — бесплатный проект
-- [Vercel](https://vercel.com/) — бесплатный аккаунт
-- [Telegram Bot](https://t.me/BotFather) — создай бота
+### Использование AI:
 
-### Шаг 2: Загрузи заказы в RetailCRM
-
-В репо есть `mock_orders.json` — 50 тестовых заказов. Загрузи их в свой RetailCRM через API.
-
-### Шаг 3: RetailCRM → Supabase
-
-Напиши скрипт который забирает заказы из RetailCRM API и кладёт в Supabase.
-
-### Шаг 4: Дашборд
-
-Сделай веб-страницу с графиком заказов (данные из Supabase). Задеплой на Vercel.
-
-### Шаг 5: Telegram-бот
-
-Настрой уведомление в Telegram когда в RetailCRM появляется заказ на сумму больше 50,000 ₸.
-
-## Результат
-
-- Ссылка на работающий дашборд (Vercel)
-- Ссылка на GitHub-репо с кодом
-- Скриншот уведомления из Telegram
-- В README репо опиши: какие промпты давал Claude Code, где застрял, как решил
-
-## Как сдать
-
-Отправь результат в Telegram: @DmitriyKrasnikov
+*   Gemini помог исправить ошибки с типами данных (decimal в Supabase).
+*   Оказана помощь в создании современного дизайна на Tailwind CSS.
+*   Решены проблемы с деплоем на Vercel.
