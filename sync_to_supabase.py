@@ -1,5 +1,4 @@
 import os
-import json
 import requests
 from dotenv import load_dotenv
 
@@ -9,6 +8,20 @@ CRM_URL = os.getenv('RETAILCRM_BASE_URL').rstrip('/')
 CRM_KEY = os.getenv('RETAILCRM_API_KEY')
 SB_URL = os.getenv('SUPABASE_URL').rstrip('/')
 SB_KEY = os.getenv('SUPABASE_KEY')
+
+# Данные Telegram
+TG_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+TG_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+
+def send_telegram(order_id, total_sum):
+    """Функция отправки уведомления в Telegram"""
+    text = f"💰 Крупный заказ!\nID: {order_id}\nСумма: {total_sum} ₸"
+    url = f"https://telegram.org{TG_TOKEN}/sendMessage"
+    try:
+        requests.post(url, json={"chat_id": TG_CHAT_ID, "text": text})
+        print(f"✈️ Уведомление в Telegram отправлено!")
+    except Exception as e:
+        print(f"⚠️ Ошибка Telegram: {e}")
 
 def sync():
     print("🔄 Получаю данные из RetailCRM...")
@@ -22,39 +35,26 @@ def sync():
         "Prefer": "resolution=merge-duplicates" 
     }
 
-    supabase_api_url = f"{SB_URL}/rest/v1/orders"
-    success_count = 0
-
     for o in orders:
-        # ЛОГИКА ИСПРАВЛЕНИЯ СУММЫ:
-        # 1. Сначала пробуем взять готовую общую сумму
-        total = o.get('totalSum')
-        
-        # 2. Если она 0 или None, считаем вручную по товарам (items)
-        if not total or float(total) == 0:
-            items = o.get('items', [])
-            total = sum(float(item.get('initialPrice', 0)) * int(item.get('quantity', 1)) for item in items)
+        total = float(o.get('totalSum', 0))
+        order_id = o.get('id')
+
+        # --- ШАГ 5: ПРОВЕРКА СУММЫ ---
+        if total > 50000:
+            send_telegram(order_id, total)
+        # -----------------------------
 
         payload = {
-            "id": o.get('id'),
+            "id": order_id,
             "external_id": o.get('externalId'),
             "first_name": o.get('firstName'),
             "last_name": o.get('lastName'),
-            "total_sum": float(total), # Записываем число
+            "total_sum": total,
             "status": o.get('status')
         }
         
-        try:
-            res = requests.post(supabase_api_url, headers=headers, json=payload)
-            if res.status_code in [200, 201, 204]:
-                success_count += 1
-                print(f"✅ Заказ {o.get('id')} — Сумма: {total} ₸")
-            else:
-                print(f"❌ Ошибка Supabase ({res.status_code}): {res.text}")
-        except Exception as e:
-            print(f"⚠️ Ошибка сети: {e}")
-
-    print(f"\n🚀 Готово! Обновлено заказов: {success_count}")
+        requests.post(f"{SB_URL}/rest/v1/orders", headers=headers, json=payload)
+        print(f"✅ Заказ {order_id} синхронизирован.")
 
 if __name__ == "__main__":
     sync()
